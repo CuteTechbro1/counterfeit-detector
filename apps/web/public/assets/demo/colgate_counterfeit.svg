@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 280" width="100%" height="100%">
+  <!-- Counterfeit Colgate Sample Simulation -->
+  <rect width="520" height="280" fill="#f8f9fa"/>
+  <!-- Dull flat red ink on recycled carton, slightly skewed -->
+  <rect x="20" y="40" width="480" height="200" rx="4" fill="#9b2226" stroke="#e63946" stroke-width="1.5"/>
+  <text x="45" y="115" font-family="'Courier New', monospace" font-size="52" font-weight="900" fill="#e9d8a6">Colgate</text>
+  <rect x="45" y="130" width="280" height="30" rx="4" fill="#001d3d"/>
+  <text x="55" y="151" font-family="Arial, sans-serif" font-size="13" fill="#ffffff">MAXIMUM CAVITY PROTECTION</text>
+
+  <!-- Defective smooth crimp without debossed lot number -->
+  <rect x="370" y="70" width="110" height="140" rx="4" fill="#6a040f" stroke="#ffb703" stroke-dasharray="3 3"/>
+  <text x="382" y="105" font-family="Arial, sans-serif" font-size="10" fill="#ffb703">[SMOOTH CRIMP]</text>
+  <text x="385" y="130" font-family="monospace" font-size="9" fill="#ced4da">NO EMBOSS</text>
+
+  <rect x="45" y="195" width="290" height="25" rx="4" fill="#03071e"/>
+  <text x="55" y="212" font-family="monospace" font-size="11" fill="#e76f51">NAFDAC: 02-4019 (Smudged)</text>
+</svg>

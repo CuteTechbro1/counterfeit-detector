@@ -1,0 +1,1373 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-[#060B14] text-white antialiased">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Counterfeit Detector 🇳🇬 | AI Packaging Authentication Platform</title>
+  
+  <!-- Tailwind CSS & Google Fonts (Inter + JetBrains Mono) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Inter"', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            theme: {
+              bg: '#060B14',          /* Deep midnight blue canvas */
+              surface: '#0B1528',     /* Solid dark navy surface */
+              workspace: '#101D36',   /* Raised dark blue workspace */
+              inner: '#08101E',       /* Sub-card interior navy container */
+              border: '#1A2C4B',      /* Hairline muted navy border */
+              borderHover: '#2B4775',
+              primary: '#2563EB',     /* Royal / Cobalt Blue */
+              primaryHover: '#1D4ED8',
+              primaryActive: '#1E40AF',
+              accent: '#38BDF8',      /* Sky / Electric Blue indicator */
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Precision Optical Laser Scan Beam (Cobalt to Sky Blue) */
+    @keyframes scanSweep {
+      0% { top: 0%; opacity: 0.85; }
+      50% { top: 96%; opacity: 1; }
+      100% { top: 0%; opacity: 0.85; }
+    }
+    .laser-scanner-line {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 1.5px;
+      background: linear-gradient(90deg, transparent, #2563EB, #38BDF8, #2563EB, transparent);
+      animation: scanSweep 2.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+      z-index: 20;
+    }
+
+    /* Comparison Slider Styles */
+    .comparison-container {
+      position: relative;
+      overflow: hidden;
+      user-select: none;
+    }
+    .comparison-slider-handle {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: #38BDF8;
+      cursor: ew-resize;
+      z-index: 30;
+      box-shadow: 0 0 8px rgba(56, 189, 248, 0.4);
+    }
+    .comparison-slider-button {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 32px;
+      height: 32px;
+      border-radius: 9999px;
+      background: #101D36;
+      border: 1px solid #38BDF8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #FFFFFF;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+      transition: all 0.15s ease;
+    }
+    .comparison-slider-button:hover {
+      background: #2563EB;
+      border-color: #FFFFFF;
+      color: #FFFFFF;
+      transform: translate(-50%, -50%) scale(1.08);
+    }
+
+    /* Forensic Hotspot Overlay (Hairline structural boundary) */
+    .hotspot-box {
+      position: absolute;
+      border: 1.5px solid #2563EB;
+      background-color: rgba(37, 99, 235, 0.16);
+      border-radius: 4px;
+      pointer-events: auto;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      z-index: 25;
+    }
+    .hotspot-box:hover, .hotspot-box.active {
+      border-color: #38BDF8;
+      background-color: rgba(56, 189, 248, 0.26);
+    }
+    .hotspot-label {
+      position: absolute;
+      top: -24px;
+      left: 0;
+      background: #101D36;
+      color: #FFFFFF;
+      border: 1px solid #1A2C4B;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 1px 6px;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+    .hotspot-box.active .hotspot-label {
+      border-color: #2563EB;
+      background: #2563EB;
+      color: #FFFFFF;
+    }
+
+    /* Smooth transitions */
+    .tab-content-pane {
+      transition: opacity 0.15s ease-in-out;
+    }
+  </style>
+</head>
+<body class="min-h-full flex flex-col font-sans bg-[#060B14] text-white relative selection:bg-[#2563EB] selection:text-white">
+
+  <!-- TOP TELEMETRY STATUS BAR -->
+  <div class="border-b border-[#1A2C4B] bg-[#060B14] text-xs text-slate-300 py-2 px-4 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-2.5">
+        <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-[#0B1528] text-slate-200 border border-[#1A2C4B]">
+          <span class="w-1.5 h-1.5 rounded-full bg-[#38BDF8] mr-2 inline-block"></span>
+          Active Shield
+        </span>
+        <span class="text-slate-400 text-xs hidden sm:inline">Real-time authentication for pharmaceuticals, beverages, and personal care</span>
+      </div>
+      <div class="flex items-center gap-3 text-[11px] font-mono">
+        <button id="open-api-key-modal-btn" class="flex items-center gap-1.5 text-slate-300 hover:text-white px-2 py-0.5 rounded bg-[#0B1528] border border-[#1A2C4B] hover:border-[#2563EB] transition">
+          <i data-lucide="cpu" class="w-3.5 h-3.5 text-[#2563EB]"></i>
+          <span id="ai-engine-telemetry">Checking AI Engine...</span>
+          <i data-lucide="settings" class="w-3 h-3 text-slate-400"></i>
+        </button>
+        <span class="text-[#1A2C4B]">|</span>
+        <span class="text-slate-400 flex items-center gap-1.5">
+          <span class="w-1.5 h-1.5 rounded-full bg-[#38BDF8]"></span>
+          NAFDAC Registry: <strong class="text-slate-200 font-semibold">Active</strong>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN NAVIGATION HEADER -->
+  <header class="border-b border-[#1A2C4B] bg-[#060B14]">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-[#2563EB] flex items-center justify-center text-white font-bold shadow-sm">
+          <i data-lucide="shield-check" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="font-bold text-base tracking-tight text-white">Counterfeit Detector</span>
+            <span class="text-[10px] font-mono font-semibold uppercase bg-[#0B1528] text-sky-400 px-1.5 py-0.5 rounded border border-[#1A2C4B]">NIGERIA</span>
+          </div>
+          <p class="text-[11px] text-slate-400 font-normal">Consumer Product &amp; Pharmaceutical Authentication Shield</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2.5">
+        <button id="open-settings-shortcut" class="text-xs font-medium px-3 py-1.5 rounded-lg bg-[#0B1528] hover:bg-[#101D36] text-slate-200 hover:text-white border border-[#1A2C4B] transition flex items-center gap-2">
+          <i data-lucide="sliders" class="w-3.5 h-3.5 text-[#38BDF8]"></i>
+          <span class="hidden sm:inline">Engine Settings</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN VIEWPORT CONTAINER -->
+  <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+    <!-- HERO SECTION (Editorial Typography in pure white & slate) -->
+    <section class="max-w-3xl mx-auto space-y-2.5 text-center">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0B1528] border border-[#1A2C4B] text-[11px] text-slate-300">
+        <span class="w-1.5 h-1.5 rounded-full bg-[#38BDF8]"></span>
+        <span class="font-medium tracking-wide">Multi-Factor AI Verification: NAFDAC Registry • Typography • Color Gamut • Tamper Seals</span>
+      </div>
+
+      <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight leading-tight" style="letter-spacing: -0.025em;">
+        Authenticate Everyday Products with Precision AI
+      </h1>
+
+      <p class="text-slate-300 text-xs sm:text-sm leading-relaxed max-w-2xl mx-auto">
+        Empowering Nigerian consumers, community pharmacies, and retailers to instantly identify counterfeit packaging, altered NAFDAC registration codes, and broken tamper seals.
+      </p>
+    </section>
+
+    <!-- WORKSPACE GRID: SCANNER INPUT (LEFT) + RESULTS WORKSPACE (RIGHT) -->
+    <section class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+      <!-- LEFT COLUMN: SCANNER INPUT -->
+      <div class="lg:col-span-5 space-y-4">
+        
+        <div class="bg-[#101D36] border border-[#1A2C4B] rounded-2xl p-5 sm:p-6 shadow-sm space-y-4">
+          
+          <div class="flex items-center justify-between border-b border-[#1A2C4B] pb-3.5">
+            <h2 class="font-bold text-white text-sm flex items-center gap-2">
+              <i data-lucide="scan-line" class="w-4 h-4 text-[#2563EB]"></i>
+              Packaging Inspection
+            </h2>
+            <div class="flex bg-[#0B1528] p-1 rounded-lg border border-[#1A2C4B] text-xs">
+              <button id="tab-upload-btn" class="px-3 py-1 rounded-md font-semibold bg-[#2563EB] text-white transition-all">Upload Photo</button>
+              <button id="tab-camera-btn" class="px-3 py-1 rounded-md font-medium text-slate-400 hover:text-white transition-all">Live Camera</button>
+            </div>
+          </div>
+
+          <!-- SKU CLASSIFICATION HINT -->
+          <div class="space-y-1.5">
+            <label class="text-xs font-semibold text-slate-200 flex items-center justify-between">
+              <span>Target Product / Brand</span>
+              <span class="text-[11px] text-sky-400 font-mono">Auto-Detection Active</span>
+            </label>
+            <select id="product-hint-select" class="w-full bg-[#0B1528] border border-[#1A2C4B] rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-[#2563EB] transition">
+              <option value="">Auto-Detect from Visual Features</option>
+              <option value="panadol-500mg-tablet">Panadol Paracetamol 500mg (Haleon / GSK)</option>
+              <option value="coca-cola-50cl-pet">Coca-Cola 50cl PET Bottle (NBC)</option>
+              <option value="colgate-maximum-cavity-140g">Colgate Maximum Cavity 140g</option>
+            </select>
+          </div>
+
+          <!-- DRAG & DROP ZONE -->
+          <div id="dropzone-area" class="border border-dashed border-[#1A2C4B] hover:border-[#2563EB] rounded-xl p-5 text-center cursor-pointer transition-all bg-[#0B1528] relative group overflow-hidden">
+            <input type="file" id="file-input" accept="image/jpeg,image/png,image/webp,image/svg+xml" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10">
+            
+            <div id="dropzone-empty" class="space-y-3 py-5">
+              <div class="w-12 h-12 mx-auto rounded-xl bg-[#101D36] border border-[#1A2C4B] flex items-center justify-center text-slate-300 group-hover:text-white group-hover:border-[#2563EB] transition-all">
+                <i data-lucide="upload-cloud" class="w-6 h-6 text-[#38BDF8]"></i>
+              </div>
+              <div class="text-xs space-y-1">
+                <span class="text-white font-semibold text-xs block">Drop product packaging image here</span>
+                <p class="text-slate-400 text-xs">or tap to choose file from device</p>
+                <p class="text-slate-500 text-[10px] font-mono mt-1">Supports JPEG, PNG, WebP up to 10MB</p>
+              </div>
+            </div>
+
+            <!-- PREVIEW CONTAINER WITH SCANNER LASER -->
+            <div id="image-preview-container" class="hidden relative">
+              <div id="scanner-laser" class="laser-scanner-line hidden"></div>
+              <img id="image-preview" src="" alt="Scan Preview" class="w-full max-h-72 object-contain rounded-lg bg-black border border-[#1A2C4B]">
+              <button id="remove-image-btn" class="absolute top-2.5 right-2.5 p-1.5 rounded-lg bg-[#101D36] text-slate-300 hover:text-rose-400 border border-[#1A2C4B] text-xs z-20">
+                <i data-lucide="x" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- WEBCAM VIEWFINDER -->
+          <div id="webcam-container" class="hidden space-y-3">
+            <div class="relative bg-black rounded-xl overflow-hidden aspect-video border border-[#1A2C4B]">
+              <video id="webcam-video" autoplay playsinline class="w-full h-full object-cover"></video>
+              <div class="absolute inset-4 border border-dashed border-[#2563EB] rounded-lg pointer-events-none flex items-center justify-center">
+                <span class="text-[11px] text-slate-200 font-mono bg-[#101D36]/90 px-3 py-1 rounded border border-[#1A2C4B]">Align packaging &amp; NAFDAC stamp</span>
+              </div>
+            </div>
+            <button id="snap-photo-btn" class="w-full py-2.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-semibold text-xs rounded-xl flex items-center justify-center gap-2 transition">
+              <i data-lucide="camera" class="w-4 h-4"></i>
+              Capture &amp; Verify Packaging
+            </button>
+          </div>
+
+          <!-- ANALYZE ACTION BUTTON -->
+          <button id="analyze-btn" class="w-full py-3.5 bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm">
+            <i data-lucide="shield-check" class="w-4 h-4"></i>
+            Run Forensic Verification
+          </button>
+
+          <!-- IN-FLIGHT PROGRESS CARD -->
+          <div id="analysis-loading" class="hidden space-y-2.5 p-3.5 bg-[#0B1528] rounded-xl border border-[#1A2C4B]">
+            <div class="flex items-center justify-between text-xs">
+              <span id="loading-step-text" class="text-slate-300 font-mono text-[11px]">Initializing AI sensor models...</span>
+              <span class="animate-spin text-[#38BDF8]"><i data-lucide="loader-2" class="w-3.5 h-3.5"></i></span>
+            </div>
+            <div class="w-full bg-[#060B14] rounded-full h-1.5 overflow-hidden border border-[#1A2C4B]">
+              <div id="loading-progress-bar" class="bg-[#2563EB] h-1.5 rounded-full transition-all duration-300 w-1/4"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MINIMAL SYSTEM COVERAGE CALLOUT -->
+        <div class="bg-[#0B1528] border border-[#1A2C4B] rounded-xl p-3.5 text-xs flex items-center justify-between">
+          <div class="flex items-center gap-2 text-slate-300">
+            <i data-lucide="database" class="w-4 h-4 text-[#38BDF8]"></i>
+            <span class="text-[11px]">Certified Profiles Active: <strong class="text-white">Panadol, Coca-Cola, Colgate</strong></span>
+          </div>
+          <span class="text-[10px] font-mono text-sky-400 bg-[#060B14] px-2 py-0.5 rounded border border-[#1A2C4B]">NAFDAC Green Book</span>
+        </div>
+
+      </div>
+
+      <!-- RIGHT COLUMN: RESULTS WORKSPACE -->
+      <div class="lg:col-span-7 space-y-5">
+
+        <!-- IDLE / EMPTY STATE -->
+        <div id="results-empty-state" class="bg-[#0B1528] border border-[#1A2C4B] rounded-2xl p-10 sm:p-14 text-center space-y-4">
+          <div class="w-14 h-14 mx-auto rounded-2xl bg-[#101D36] border border-[#1A2C4B] flex items-center justify-center text-[#38BDF8]">
+            <i data-lucide="shield" class="w-7 h-7"></i>
+          </div>
+          <div class="max-w-md mx-auto space-y-1.5">
+            <h3 class="font-bold text-white text-base">Ready for Packaging Inspection</h3>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              Upload a clear photograph or use your camera to start instant packaging authentication, NAFDAC registry verification, and visual discrepancy detection.
+            </p>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-4 text-left max-w-lg mx-auto">
+            <div class="p-3 rounded-xl bg-[#08101E] border border-[#1A2C4B] space-y-1">
+              <span class="text-[11px] font-semibold text-white flex items-center gap-1.5">
+                <i data-lucide="file-check" class="w-3.5 h-3.5 text-[#38BDF8]"></i> NAFDAC Sync
+              </span>
+              <p class="text-[10px] text-slate-400">Verifies genuine registration numbers and licensed manufacturers.</p>
+            </div>
+            <div class="p-3 rounded-xl bg-[#08101E] border border-[#1A2C4B] space-y-1">
+              <span class="text-[11px] font-semibold text-white flex items-center gap-1.5">
+                <i data-lucide="split-square-vertical" class="w-3.5 h-3.5 text-[#38BDF8]"></i> Visual Forensic
+              </span>
+              <p class="text-[10px] text-slate-400">Compares typography, color gamut, and logos with genuine reference standards.</p>
+            </div>
+            <div class="p-3 rounded-xl bg-[#08101E] border border-[#1A2C4B] space-y-1">
+              <span class="text-[11px] font-semibold text-white flex items-center gap-1.5">
+                <i data-lucide="award" class="w-3.5 h-3.5 text-[#38BDF8]"></i> Trust Score
+              </span>
+              <p class="text-[10px] text-slate-400">Delivers mathematical point attribution and an exportable certificate.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ACTIVE RESULTS DASHBOARD -->
+        <div id="results-content" class="hidden space-y-4">
+          
+          <!-- VERDICT HERO CARD & GAUGE -->
+          <div id="verdict-banner" class="bg-[#0B1528] border border-[#1A2C4B] rounded-2xl p-5 sm:p-6 relative overflow-hidden shadow-sm">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+              
+              <!-- Left: Verdict Info -->
+              <div class="space-y-2 flex-1">
+                <div class="flex flex-wrap items-center gap-2">
+                  <span id="verdict-badge" class="px-2.5 py-0.5 rounded-md text-[11px] font-semibold uppercase tracking-wider"></span>
+                  <span id="product-name-badge" class="text-xs font-mono text-slate-200 bg-[#060B14] px-2.5 py-0.5 rounded-md border border-[#1A2C4B]"></span>
+                  <span id="engine-badge" class="text-[11px] font-mono text-slate-300 bg-[#060B14] px-2 py-0.5 rounded-md border border-[#1A2C4B]"></span>
+                </div>
+
+                <h2 id="verdict-title" class="text-lg sm:text-xl font-bold tracking-tight text-white leading-tight"></h2>
+                <p id="verdict-summary" class="text-xs text-slate-300 leading-relaxed"></p>
+
+                <div class="flex flex-wrap items-center gap-3 pt-2 text-xs text-slate-400 border-t border-[#1A2C4B]">
+                  <span class="flex items-center gap-1.5 font-mono text-[11px]">
+                    <i data-lucide="clock" class="w-3.5 h-3.5 text-[#2563EB]"></i>
+                    Latency: <strong id="latency-text" class="text-white font-semibold">0ms</strong>
+                  </span>
+                  <span class="flex items-center gap-1.5 font-mono text-[11px]">
+                    <span class="w-1.5 h-1.5 rounded-full bg-[#38BDF8]"></span>
+                    Audit Hash: <strong id="cert-hash-text" class="text-slate-200 font-semibold">...</strong>
+                  </span>
+                  <button id="quick-export-cert-btn" class="ml-auto text-xs font-semibold px-2.5 py-1 rounded-lg bg-[#2563EB] hover:bg-[#1D4ED8] text-white flex items-center gap-1.5 transition">
+                    <i data-lucide="download" class="w-3 h-3"></i>
+                    <span>Export Certificate</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Right: Radial Score Gauge -->
+              <div class="flex flex-col items-center justify-center p-3.5 bg-[#060B14] rounded-xl border border-[#1A2C4B] min-w-[130px] shrink-0">
+                <div class="relative w-24 h-24 flex items-center justify-center">
+                  <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                    <path class="text-[#08101E]" stroke-width="3" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                    <path id="score-circle-path" class="text-[#2563EB] transition-all duration-1000 ease-out" stroke-dasharray="0, 100" stroke-width="3" stroke-linecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                  </svg>
+                  <div class="absolute text-center">
+                    <span id="score-number" class="text-xl font-bold text-white tracking-tight">0</span>
+                    <span class="text-[9px] block text-slate-400 uppercase font-semibold tracking-wider">/ 100 PTS</span>
+                  </div>
+                </div>
+                <span class="text-[10px] font-semibold mt-1 text-slate-300 tracking-wider">TRUST SCORE</span>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- STREAMLINED INSPECTION TABS (ELIMINATES CONGESTION) -->
+          <div class="bg-[#0B1528] border border-[#1A2C4B] rounded-2xl overflow-hidden shadow-sm">
+            
+            <!-- TAB BAR -->
+            <div class="flex items-center border-b border-[#1A2C4B] bg-[#08101E] px-3 pt-2 gap-1 text-xs">
+              <button id="res-tab-visual" class="px-3.5 py-2 rounded-t-lg font-semibold border-b-2 border-[#2563EB] bg-[#0B1528] text-white flex items-center gap-2 transition">
+                <i data-lucide="split-square-vertical" class="w-3.5 h-3.5 text-[#38BDF8]"></i>
+                <span>Visual Comparison</span>
+              </button>
+              <button id="res-tab-breakdown" class="px-3.5 py-2 rounded-t-lg font-medium text-slate-400 hover:text-white border-b-2 border-transparent hover:bg-[#0B1528]/50 flex items-center gap-2 transition">
+                <i data-lucide="file-check" class="w-3.5 h-3.5"></i>
+                <span>Registry &amp; Score Factors</span>
+              </button>
+              <button id="res-tab-checklist" class="px-3.5 py-2 rounded-t-lg font-medium text-slate-400 hover:text-white border-b-2 border-transparent hover:bg-[#0B1528]/50 flex items-center gap-2 transition">
+                <i data-lucide="clipboard-check" class="w-3.5 h-3.5"></i>
+                <span>Physical Checklist</span>
+              </button>
+            </div>
+
+            <!-- TAB PANE 1: VISUAL COMPARISON & DEFECTS -->
+            <div id="pane-visual" class="tab-content-pane p-5 space-y-4">
+              
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#1A2C4B] pb-3">
+                <div>
+                  <h3 class="font-bold text-white text-sm flex items-center gap-2">
+                    <i data-lucide="search" class="w-4 h-4 text-[#2563EB]"></i>
+                    Packaging Discrepancy Studio
+                  </h3>
+                  <p class="text-xs text-slate-400">Drag slider to compare your uploaded sample directly with the genuine baseline</p>
+                </div>
+
+                <div class="flex items-center gap-2">
+                  <div class="flex bg-[#060B14] p-1 rounded-lg border border-[#1A2C4B] text-xs">
+                    <button id="view-curtain-btn" class="px-2.5 py-1 rounded-md font-semibold bg-[#2563EB] text-white transition">Curtain Slider</button>
+                    <button id="view-split-btn" class="px-2.5 py-1 rounded-md font-medium text-slate-400 hover:text-white transition">Dual Split</button>
+                  </div>
+                  <button id="toggle-defects-btn" class="px-2.5 py-1 text-xs rounded-lg bg-rose-950/40 text-rose-300 border border-rose-900/60 hover:bg-rose-900/30 transition flex items-center gap-1.5 font-medium">
+                    <i data-lucide="crosshair" class="w-3 h-3"></i>
+                    <span>Defects</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- HOTSPOT FOCUS BAR -->
+              <div class="space-y-1.5">
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Inspection Hotspots (Tap to inspect):</span>
+                <div class="flex flex-wrap gap-2" id="hotspot-pills-container">
+                  <!-- Rendered via JS -->
+                </div>
+              </div>
+
+              <!-- CURTAIN COMPARISON CONTAINER -->
+              <div id="curtain-slider-view" class="comparison-container bg-black rounded-xl overflow-hidden aspect-[4/3] sm:aspect-[16/10] border border-[#1A2C4B] relative">
+                <!-- Background: Reference Standard -->
+                <img id="curtain-ref-img" src="" alt="Canonical Reference" class="absolute inset-0 w-full h-full object-contain pointer-events-none">
+                
+                <!-- Foreground: User Scan -->
+                <div id="curtain-clip-wrapper" class="absolute inset-0 overflow-hidden pointer-events-none" style="clip-path: polygon(0 0, 50% 0, 50% 100%, 0 100%);">
+                  <img id="curtain-user-img" src="" alt="User Scan" class="absolute inset-0 w-full h-full object-contain">
+                  <div id="curtain-defects-layer" class="absolute inset-0 pointer-events-none"></div>
+                </div>
+
+                <!-- Draggable Slider Handle -->
+                <div id="comparison-slider" class="comparison-slider-handle" style="left: 50%;">
+                  <div class="comparison-slider-button">
+                    <i data-lucide="chevrons-left-right" class="w-3.5 h-3.5"></i>
+                  </div>
+                </div>
+
+                <!-- Floating Labels -->
+                <div class="absolute bottom-3 left-3 bg-[#101D36]/90 text-amber-300 border border-amber-500/40 text-[10px] font-bold px-2.5 py-0.5 rounded pointer-events-none">
+                  Captured Packaging (Left)
+                </div>
+                <div class="absolute bottom-3 right-3 bg-[#101D36]/90 text-slate-200 border border-[#1A2C4B] text-[10px] font-bold px-2.5 py-0.5 rounded pointer-events-none">
+                  Certified Standard (Right)
+                </div>
+              </div>
+
+              <!-- DUAL SPLIT VIEW -->
+              <div id="dual-split-view" class="hidden grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div class="bg-[#060B14] rounded-xl p-3 border border-[#1A2C4B] space-y-1.5">
+                  <div class="flex items-center justify-between text-xs">
+                    <span class="font-semibold text-amber-400 flex items-center gap-1.5">
+                      <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                      User Scanned Packaging
+                    </span>
+                    <span class="text-slate-500 font-mono text-[10px]">Active Sample</span>
+                  </div>
+                  <div class="relative bg-black rounded-lg overflow-hidden flex items-center justify-center min-h-[200px]">
+                    <img id="split-user-img" src="" alt="User Scanned Sample" class="max-h-60 object-contain">
+                    <div id="split-defects-layer" class="absolute inset-0 pointer-events-none"></div>
+                  </div>
+                </div>
+
+                <div class="bg-[#060B14] rounded-xl p-3 border border-[#1A2C4B] space-y-1.5">
+                  <div class="flex items-center justify-between text-xs">
+                    <span class="font-semibold text-sky-400 flex items-center gap-1.5">
+                      <span class="w-1.5 h-1.5 rounded-full bg-[#38BDF8]"></span>
+                      Authentic Golden Standard
+                    </span>
+                    <span class="text-slate-500 font-mono text-[10px]">Certified Profile</span>
+                  </div>
+                  <div class="bg-black rounded-lg overflow-hidden flex items-center justify-center min-h-[200px]">
+                    <img id="split-ref-img" src="" alt="Authentic Reference Standard" class="max-h-60 object-contain">
+                  </div>
+                </div>
+              </div>
+
+              <!-- PACKAGING RED FLAGS (RENDERED INLINE WHEN DISCREPANCIES EXIST) -->
+              <div id="defects-card" class="hidden bg-rose-950/20 border border-rose-900/40 rounded-xl p-4 space-y-2.5">
+                <h4 class="font-bold text-rose-300 text-xs flex items-center gap-2">
+                  <i data-lucide="alert-octagon" class="w-4 h-4 text-rose-400"></i>
+                  Identified Packaging Discrepancies &amp; Red Flags
+                </h4>
+                <div id="defects-list" class="space-y-2">
+                  <!-- Rendered via JS -->
+                </div>
+              </div>
+
+            </div>
+
+            <!-- TAB PANE 2: REGISTRY & SCORE BREAKDOWN -->
+            <div id="pane-breakdown" class="tab-content-pane hidden p-5 space-y-4">
+              
+              <!-- NAFDAC GREEN BOOK REGISTRY CARD -->
+              <div class="bg-[#08101E] border border-[#1A2C4B] rounded-xl p-4 space-y-3">
+                <div class="flex items-center justify-between border-b border-[#1A2C4B] pb-2.5">
+                  <div class="flex items-center gap-2">
+                    <i data-lucide="file-check" class="w-4 h-4 text-[#2563EB]"></i>
+                    <div>
+                      <h4 class="font-bold text-white text-xs sm:text-sm">NAFDAC Green Book Registry Verification</h4>
+                      <span class="text-[11px] text-slate-400">Official Nigerian Food &amp; Drug Administration regulatory audit</span>
+                    </div>
+                  </div>
+                  <span id="nafdac-status-badge" class="px-2.5 py-0.5 rounded text-[11px] font-semibold font-mono"></span>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs" id="nafdac-details-grid">
+                  <!-- Rendered via JS -->
+                </div>
+              </div>
+
+              <!-- TRUST SCORE FACTOR ATTRIBUTION MATRIX -->
+              <div class="bg-[#08101E] border border-[#1A2C4B] rounded-xl p-4 space-y-3">
+                <div>
+                  <h4 class="font-bold text-white text-xs sm:text-sm flex items-center gap-2">
+                    <i data-lucide="layers" class="w-4 h-4 text-[#2563EB]"></i>
+                    Trust Score Factor Attribution Matrix
+                  </h4>
+                  <p class="text-[11px] text-slate-400">Mathematical point allocation across all 4 inspection categories (100 pts total)</p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5" id="score-factors-grid">
+                  <!-- Rendered via JS -->
+                </div>
+              </div>
+
+              <!-- VERIFIED AUTHENTICITY INDICATORS -->
+              <div class="bg-[#08101E] border border-[#1A2C4B] rounded-xl p-4 space-y-3">
+                <div class="flex items-center justify-between border-b border-[#1A2C4B] pb-2.5">
+                  <div class="flex items-center gap-2">
+                    <i data-lucide="badge-check" class="w-4 h-4 text-[#2563EB]"></i>
+                    <div>
+                      <h4 class="font-bold text-white text-xs sm:text-sm">Confirmed Authenticity Indicators</h4>
+                      <p class="text-[11px] text-slate-400">Forensic attributes confirmed genuine on physical packaging</p>
+                    </div>
+                  </div>
+                  <span id="risk-level-badge" class="px-2.5 py-0.5 rounded text-[11px] font-semibold font-mono"></span>
+                </div>
+                <div id="authenticity-indicators-list" class="space-y-2">
+                  <!-- Rendered via JS -->
+                </div>
+              </div>
+
+            </div>
+
+            <!-- TAB PANE 3: PHYSICAL CHECKLIST -->
+            <div id="pane-checklist" class="tab-content-pane hidden p-5 space-y-4">
+              
+              <div class="flex items-center gap-2 border-b border-[#1A2C4B] pb-2.5">
+                <i data-lucide="clipboard-check" class="w-4 h-4 text-[#2563EB]"></i>
+                <div>
+                  <h3 class="font-bold text-white text-sm">Physical Inspection Checklist (Tactile &amp; Structural)</h3>
+                  <p class="text-xs text-slate-400">Critical physical features to inspect with your hands that 2D cameras may miss</p>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="tips-container">
+                <!-- Rendered via JS -->
+              </div>
+
+            </div>
+
+          </div>
+
+          <!-- EXPORT AUDIT CERTIFICATE BAR -->
+          <div class="bg-[#0B1528] border border-[#1A2C4B] rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div class="space-y-0.5 text-center sm:text-left">
+              <span class="font-bold text-white text-xs flex items-center justify-center sm:justify-start gap-2">
+                <i data-lucide="file-text" class="w-3.5 h-3.5 text-[#38BDF8]"></i>
+                Cryptographically Stamped Audit Record
+              </span>
+              <p class="text-[11px] text-slate-400">Generate an official inspection certificate for pharmacy records or NAFDAC compliance reporting.</p>
+            </div>
+            <button id="export-cert-btn" class="px-4 py-2 rounded-xl bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-semibold text-xs flex items-center gap-2 shrink-0 transition-all shadow-sm">
+              <i data-lucide="download" class="w-3.5 h-3.5"></i>
+              <span>Export Audit Certificate</span>
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- AUDIT CERTIFICATE MODAL -->
+  <div id="cert-modal" class="fixed inset-0 bg-black/80 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-[#0B1528] border border-[#1A2C4B] rounded-2xl max-w-xl w-full p-6 space-y-5 relative">
+      <div class="flex items-center justify-between border-b border-[#1A2C4B] pb-3.5">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-[#2563EB] text-white flex items-center justify-center">
+            <i data-lucide="shield-check" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-white text-base">Packaging Verification Certificate</h3>
+            <span class="text-xs text-slate-400 font-mono">Counterfeit Detector Nigeria</span>
+          </div>
+        </div>
+        <button id="close-cert-btn" class="p-1 rounded-lg text-slate-400 hover:text-white bg-[#060B14] border border-[#1A2C4B]">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div class="bg-[#060B14] p-4 rounded-xl border border-[#1A2C4B] text-xs font-mono space-y-2">
+        <div class="flex justify-between border-b border-[#1A2C4B] pb-1.5">
+          <span class="text-slate-400">CERTIFICATE ID:</span>
+          <span id="modal-cert-id" class="text-white font-bold">...</span>
+        </div>
+        <div class="flex justify-between border-b border-[#1A2C4B] pb-1.5">
+          <span class="text-slate-400">PRODUCT EVALUATED:</span>
+          <span id="modal-cert-product" class="text-white font-bold">...</span>
+        </div>
+        <div class="flex justify-between border-b border-[#1A2C4B] pb-1.5">
+          <span class="text-slate-400">TRUST SCORE:</span>
+          <span id="modal-cert-score" class="font-bold">...</span>
+        </div>
+        <div class="flex justify-between border-b border-[#1A2C4B] pb-1.5">
+          <span class="text-slate-400">VERDICT:</span>
+          <span id="modal-cert-verdict" class="font-bold">...</span>
+        </div>
+        <div class="flex justify-between border-b border-[#1A2C4B] pb-1.5">
+          <span class="text-slate-400">NAFDAC STATUS:</span>
+          <span id="modal-cert-nafdac" class="text-slate-200">...</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-400">INSPECTION ENGINE:</span>
+          <span id="modal-cert-engine" class="text-slate-200">...</span>
+        </div>
+      </div>
+
+      <div class="text-[11px] text-slate-400 leading-relaxed">
+        <strong>Notice:</strong> This document serves as an automated forensic preliminary screening audit. For legal disputes or regulatory seizure, submit physical batch samples directly to the Central Laboratory of NAFDAC.
+      </div>
+
+      <div class="flex justify-end gap-3 pt-1">
+        <button onclick="window.print()" class="px-4 py-2 rounded-xl bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-semibold text-xs flex items-center gap-2">
+          <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+          Print / Save PDF
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- API KEY CONFIGURATION MODAL -->
+  <div id="api-key-modal" class="fixed inset-0 bg-black/80 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-[#0B1528] border border-[#1A2C4B] rounded-2xl max-w-md w-full p-6 space-y-4 relative shadow-2xl">
+      <div class="flex items-center justify-between border-b border-[#1A2C4B] pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-[#2563EB] text-white flex items-center justify-center">
+            <i data-lucide="cpu" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-white text-sm">AI Engine Configuration</h3>
+            <span class="text-[11px] text-slate-400 font-mono">Google Gemini Multimodal Vision</span>
+          </div>
+        </div>
+        <button id="close-api-key-btn" class="p-1 rounded-lg text-slate-400 hover:text-white bg-[#060B14] border border-[#1A2C4B]">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <p class="text-slate-300 leading-relaxed text-[12px]">
+          The platform operates using our <strong>calibrated Edge Computer Vision engine</strong> by default. To enable cloud multimodal OCR and precision reasoning, activate Google Gemini Vision:
+        </p>
+
+        <div class="space-y-1.5">
+          <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Google Gemini API Key</label>
+          <input type="password" id="gemini-api-key-input" placeholder="AIzaSy..." class="w-full bg-[#060B14] border border-[#1A2C4B] rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-[#2563EB] font-mono">
+        </div>
+
+        <div id="api-key-status-msg" class="hidden p-2.5 rounded-lg text-[11px] font-mono"></div>
+
+        <div class="flex items-center justify-end gap-2 pt-2 border-t border-[#1A2C4B]">
+          <button id="clear-api-key-btn" class="px-3 py-1.5 rounded-xl bg-[#060B14] hover:bg-[#101D36] text-slate-400 hover:text-white text-xs border border-[#1A2C4B] transition">
+            Use Local Engine
+          </button>
+          <button id="save-api-key-btn" class="px-4 py-1.5 rounded-xl bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-semibold text-xs transition">
+            Save &amp; Activate
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="border-t border-[#1A2C4B] bg-[#060B14] py-6 px-4 text-slate-400 text-xs">
+    <div class="max-w-7xl mx-auto space-y-2 text-center">
+      <p class="max-w-3xl mx-auto text-slate-400 text-[11px] leading-relaxed">
+        <strong>Regulatory Notice:</strong> Counterfeit Detector is an AI-assisted packaging screening platform. It complements official inspection procedures and assists in reporting suspicious batches to NAFDAC and registered trademark holders.
+      </p>
+      <div class="flex items-center justify-center gap-3 text-slate-500 text-[11px]">
+        <span>© 2026 Counterfeit Detector NG</span>
+        <span>•</span>
+        <span>Consumer Protection &amp; Brand Authentication System</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- SCRIPT -->
+  <script>
+    let currentUploadedFile = null;
+    let currentAnalysisResult = null;
+    let showDefects = true;
+    let webcamStream = null;
+    let isDraggingSlider = false;
+    let currentActiveHotspot = null;
+
+    lucide.createIcons();
+
+    // DOM Elements
+    const fileInput = document.getElementById('file-input');
+    const dropzoneArea = document.getElementById('dropzone-area');
+    const dropzoneEmpty = document.getElementById('dropzone-empty');
+    const imagePreviewContainer = document.getElementById('image-preview-container');
+    const imagePreview = document.getElementById('image-preview');
+    const removeImageBtn = document.getElementById('remove-image-btn');
+    const analyzeBtn = document.getElementById('analyze-btn');
+    const productHintSelect = document.getElementById('product-hint-select');
+    const loadingCard = document.getElementById('analysis-loading');
+    const loadingText = document.getElementById('loading-step-text');
+    const loadingProgress = document.getElementById('loading-progress-bar');
+    const resultsEmptyState = document.getElementById('results-empty-state');
+    const resultsContent = document.getElementById('results-content');
+    const scannerLaser = document.getElementById('scanner-laser');
+
+    // Comparison Views
+    const curtainSliderView = document.getElementById('curtain-slider-view');
+    const dualSplitView = document.getElementById('dual-split-view');
+    const viewCurtainBtn = document.getElementById('view-curtain-btn');
+    const viewSplitBtn = document.getElementById('view-split-btn');
+    const comparisonSlider = document.getElementById('comparison-slider');
+    const curtainClipWrapper = document.getElementById('curtain-clip-wrapper');
+    const toggleDefectsBtn = document.getElementById('toggle-defects-btn');
+
+    // Input Tabs
+    const tabUploadBtn = document.getElementById('tab-upload-btn');
+    const tabCameraBtn = document.getElementById('tab-camera-btn');
+    const webcamContainer = document.getElementById('webcam-container');
+    const webcamVideo = document.getElementById('webcam-video');
+    const snapPhotoBtn = document.getElementById('snap-photo-btn');
+
+    // Result Inspection Tabs
+    const resTabVisual = document.getElementById('res-tab-visual');
+    const resTabBreakdown = document.getElementById('res-tab-breakdown');
+    const resTabChecklist = document.getElementById('res-tab-checklist');
+    const paneVisual = document.getElementById('pane-visual');
+    const paneBreakdown = document.getElementById('pane-breakdown');
+    const paneChecklist = document.getElementById('pane-checklist');
+
+    function switchResultTab(tabName) {
+      // Reset all tabs
+      [resTabVisual, resTabBreakdown, resTabChecklist].forEach(btn => {
+        btn.className = 'px-3.5 py-2 rounded-t-lg font-medium text-slate-400 hover:text-white border-b-2 border-transparent hover:bg-[#0B1528]/50 flex items-center gap-2 transition';
+      });
+      [paneVisual, paneBreakdown, paneChecklist].forEach(pane => pane.classList.add('hidden'));
+
+      if (tabName === 'visual') {
+        resTabVisual.className = 'px-3.5 py-2 rounded-t-lg font-semibold border-b-2 border-[#2563EB] bg-[#0B1528] text-white flex items-center gap-2 transition';
+        paneVisual.classList.remove('hidden');
+      } else if (tabName === 'breakdown') {
+        resTabBreakdown.className = 'px-3.5 py-2 rounded-t-lg font-semibold border-b-2 border-[#2563EB] bg-[#0B1528] text-white flex items-center gap-2 transition';
+        paneBreakdown.classList.remove('hidden');
+      } else if (tabName === 'checklist') {
+        resTabChecklist.className = 'px-3.5 py-2 rounded-t-lg font-semibold border-b-2 border-[#2563EB] bg-[#0B1528] text-white flex items-center gap-2 transition';
+        paneChecklist.classList.remove('hidden');
+      }
+      lucide.createIcons();
+    }
+
+    resTabVisual.addEventListener('click', () => switchResultTab('visual'));
+    resTabBreakdown.addEventListener('click', () => switchResultTab('breakdown'));
+    resTabChecklist.addEventListener('click', () => switchResultTab('checklist'));
+
+    // Health Telemetry & Engine Configuration
+    const apiKeyModal = document.getElementById('api-key-modal');
+    const openApiKeyModalBtn = document.getElementById('open-api-key-modal-btn');
+    const openSettingsShortcut = document.getElementById('open-settings-shortcut');
+    const closeApiKeyBtn = document.getElementById('close-api-key-btn');
+    const saveApiKeyBtn = document.getElementById('save-api-key-btn');
+    const clearApiKeyBtn = document.getElementById('clear-api-key-btn');
+    const geminiApiKeyInput = document.getElementById('gemini-api-key-input');
+    const apiKeyStatusMsg = document.getElementById('api-key-status-msg');
+
+    function openConfigModal() {
+      apiKeyStatusMsg.classList.add('hidden');
+      apiKeyModal.classList.remove('hidden');
+    }
+
+    if (openApiKeyModalBtn) openApiKeyModalBtn.addEventListener('click', openConfigModal);
+    if (openSettingsShortcut) openSettingsShortcut.addEventListener('click', openConfigModal);
+
+    if (closeApiKeyBtn) {
+      closeApiKeyBtn.addEventListener('click', () => {
+        apiKeyModal.classList.add('hidden');
+      });
+    }
+
+    if (saveApiKeyBtn) {
+      saveApiKeyBtn.addEventListener('click', async () => {
+        const key = geminiApiKeyInput.value.trim();
+        if (!key) {
+          alert('Please enter a valid Google Gemini API key.');
+          return;
+        }
+        saveApiKeyBtn.disabled = true;
+        saveApiKeyBtn.innerText = 'Connecting...';
+        try {
+          const res = await fetch('/api/v1/settings/gemini-key', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ api_key: key })
+          });
+          const data = await res.json();
+          if (res.ok) {
+            apiKeyStatusMsg.className = 'p-2.5 rounded-lg text-[11px] font-mono bg-blue-950/60 text-sky-400 border border-blue-800/40 block';
+            apiKeyStatusMsg.innerText = '✓ ' + data.message;
+            await updateTelemetry();
+            setTimeout(() => apiKeyModal.classList.add('hidden'), 1200);
+          } else {
+            apiKeyStatusMsg.className = 'p-2.5 rounded-lg text-[11px] font-mono bg-rose-950/60 text-rose-300 border border-rose-800/40 block';
+            apiKeyStatusMsg.innerText = '✕ ' + (data.detail || 'Failed to save key.');
+          }
+        } catch (err) {
+          alert('Error saving API key: ' + err.message);
+        } finally {
+          saveApiKeyBtn.disabled = false;
+          saveApiKeyBtn.innerText = 'Save & Activate';
+        }
+      });
+    }
+
+    if (clearApiKeyBtn) {
+      clearApiKeyBtn.addEventListener('click', async () => {
+        try {
+          await fetch('/api/v1/settings/gemini-key', { method: 'DELETE' });
+          geminiApiKeyInput.value = '';
+          apiKeyStatusMsg.className = 'p-2.5 rounded-lg text-[11px] font-mono bg-[#060B14] text-slate-300 border border-[#1A2C4B] block';
+          apiKeyStatusMsg.innerText = 'Reverted to Local Edge Computer Vision.';
+          await updateTelemetry();
+          setTimeout(() => apiKeyModal.classList.add('hidden'), 1000);
+        } catch (err) {}
+      });
+    }
+
+    async function updateTelemetry() {
+      try {
+        const res = await fetch('/api/v1/health');
+        if (res.ok) {
+          const data = await res.json();
+          const isGemini = data.ai_engine?.gemini_vision_ready;
+          const engineName = isGemini ? 'Gemini Vision (Active)' : 'Hybrid Edge CV (Active)';
+          document.getElementById('ai-engine-telemetry').innerText = engineName;
+        }
+      } catch (e) {}
+    }
+
+    // Input Tabs
+    tabUploadBtn.addEventListener('click', () => {
+      tabUploadBtn.className = 'px-3 py-1 rounded-md font-semibold bg-[#2563EB] text-white transition-all';
+      tabCameraBtn.className = 'px-3 py-1 rounded-md font-medium text-slate-400 hover:text-white transition-all';
+      dropzoneArea.classList.remove('hidden');
+      webcamContainer.classList.add('hidden');
+      stopWebcam();
+    });
+
+    tabCameraBtn.addEventListener('click', async () => {
+      tabCameraBtn.className = 'px-3 py-1 rounded-md font-semibold bg-[#2563EB] text-white transition-all';
+      tabUploadBtn.className = 'px-3 py-1 rounded-md font-medium text-slate-400 hover:text-white transition-all';
+      dropzoneArea.classList.add('hidden');
+      webcamContainer.classList.remove('hidden');
+      await startWebcam();
+    });
+
+    async function startWebcam() {
+      try {
+        webcamStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+        webcamVideo.srcObject = webcamStream;
+      } catch (err) {
+        alert('Camera access denied or unavailable: ' + err.message);
+      }
+    }
+
+    function stopWebcam() {
+      if (webcamStream) {
+        webcamStream.getTracks().forEach(t => t.stop());
+        webcamStream = null;
+      }
+    }
+
+    snapPhotoBtn.addEventListener('click', () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = webcamVideo.videoWidth || 640;
+      canvas.height = webcamVideo.videoHeight || 480;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(webcamVideo, 0, 0, canvas.width, canvas.height);
+      
+      canvas.toBlob(blob => {
+        currentUploadedFile = new File([blob], 'camera_capture.jpg', { type: 'image/jpeg' });
+        displayPreview(URL.createObjectURL(blob));
+        tabUploadBtn.click();
+        triggerFileAnalysis(currentUploadedFile);
+      }, 'image/jpeg', 0.9);
+    });
+
+    // File handling
+    fileInput.addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (file) {
+        currentUploadedFile = file;
+        displayPreview(URL.createObjectURL(file));
+      }
+    });
+
+    function displayPreview(url) {
+      imagePreview.src = url;
+      dropzoneEmpty.classList.add('hidden');
+      imagePreviewContainer.classList.remove('hidden');
+      scannerLaser.classList.remove('hidden');
+    }
+
+    removeImageBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      currentUploadedFile = null;
+      fileInput.value = '';
+      imagePreview.src = '';
+      dropzoneEmpty.classList.remove('hidden');
+      imagePreviewContainer.classList.add('hidden');
+      scannerLaser.classList.add('hidden');
+    });
+
+    analyzeBtn.addEventListener('click', () => {
+      if (currentUploadedFile) {
+        triggerFileAnalysis(currentUploadedFile);
+      } else {
+        alert('Please select or upload a packaging photo to verify.');
+      }
+    });
+
+    function triggerFileAnalysis(file) {
+      const hint = productHintSelect.value;
+      runAnalysis(file, null, hint, imagePreview.src);
+    }
+
+    // Core Analysis Execution
+    async function runAnalysis(file, demoSampleId, productHint, displayImageUrl) {
+      loadingCard.classList.remove('hidden');
+      analyzeBtn.disabled = true;
+      resultsEmptyState.classList.add('hidden');
+      resultsContent.classList.add('hidden');
+      scannerLaser.classList.remove('hidden');
+
+      const steps = [
+        'Preprocessing & Checking Sensor Luminance...',
+        'Running SKU Classifier & Boundary Crop...',
+        'Cross-referencing NAFDAC Green Book Registry...',
+        'Measuring Chromatic Gamut & Edge Sharpness...',
+        'Compiling Multi-Factor Trust Score...'
+      ];
+
+      let stepIdx = 0;
+      const progressTimer = setInterval(() => {
+        if (stepIdx < steps.length - 1) {
+          stepIdx++;
+          loadingText.innerText = steps[stepIdx];
+          loadingProgress.style.width = `${((stepIdx + 1) / steps.length) * 100}%`;
+        }
+      }, 250);
+
+      try {
+        const formData = new FormData();
+        if (file) formData.append('image', file);
+        if (demoSampleId) formData.append('demo_sample_id', demoSampleId);
+        if (productHint) formData.append('product_hint', productHint);
+
+        const res = await fetch('/api/v1/scans/analyze', {
+          method: 'POST',
+          body: formData
+        });
+
+        clearInterval(progressTimer);
+        loadingProgress.style.width = '100%';
+
+        if (!res.ok) {
+          const errData = await res.json();
+          throw new Error(errData.detail || 'Analysis pipeline failed');
+        }
+
+        const data = await res.json();
+        currentAnalysisResult = data;
+        renderResults(data, displayImageUrl);
+
+      } catch (err) {
+        clearInterval(progressTimer);
+        alert('Verification error: ' + err.message);
+        resultsEmptyState.classList.remove('hidden');
+      } finally {
+        setTimeout(() => {
+          loadingCard.classList.add('hidden');
+          analyzeBtn.disabled = false;
+          scannerLaser.classList.add('hidden');
+        }, 300);
+      }
+    }
+
+    // Render UI Results
+    function renderResults(data, userImgUrl) {
+      resultsContent.classList.remove('hidden');
+
+      const score = data.trust_score;
+      const scoreCircle = document.getElementById('score-circle-path');
+      const scoreNumber = document.getElementById('score-number');
+      const verdictBanner = document.getElementById('verdict-banner');
+      const verdictBadge = document.getElementById('verdict-badge');
+      const verdictTitle = document.getElementById('verdict-title');
+      const verdictSummary = document.getElementById('verdict-summary');
+      const productNameBadge = document.getElementById('product-name-badge');
+      const latencyText = document.getElementById('latency-text');
+      const certHashText = document.getElementById('cert-hash-text');
+      const engineBadge = document.getElementById('engine-badge');
+
+      scoreNumber.innerText = score;
+      latencyText.innerText = `${data.processing_time_ms}ms`;
+      certHashText.innerText = data.certificate_hash || 'NG-VERIFY-GENUINE';
+      productNameBadge.innerText = data.product.product_name;
+      engineBadge.innerText = data.inspection_engine || 'Hybrid Edge CV';
+
+      if (data.confidence_level === 'HIGH_AUTHENTIC') {
+        scoreCircle.className = 'text-[#2563EB] transition-all duration-1000 ease-out';
+        verdictBanner.className = 'bg-[#0B1528] border border-[#1A2C4B] rounded-2xl p-5 sm:p-6 relative overflow-hidden shadow-sm';
+        verdictBadge.className = 'px-2.5 py-0.5 rounded-md text-[11px] font-semibold uppercase tracking-wider bg-blue-950/60 text-[#38BDF8] border border-blue-800/40';
+        verdictBadge.innerText = 'AUTHENTIC MATCH';
+        verdictTitle.innerText = 'High Confidence: Genuine Packaging Profile';
+      } else if (data.confidence_level === 'CAUTION') {
+        scoreCircle.className = 'text-amber-500 transition-all duration-1000 ease-out';
+        verdictBanner.className = 'bg-[#0B1528] border border-[#1A2C4B] rounded-2xl p-5 sm:p-6 relative overflow-hidden shadow-sm';
+        verdictBadge.className = 'px-2.5 py-0.5 rounded-md text-[11px] font-semibold uppercase tracking-wider bg-amber-950/60 text-amber-300 border border-amber-800/40';
+        verdictBadge.innerText = 'CAUTION ADVISED';
+        verdictTitle.innerText = 'Packaging Discrepancies Noted';
+      } else {
+        scoreCircle.className = 'text-rose-500 transition-all duration-1000 ease-out';
+        verdictBanner.className = 'bg-[#0B1528] border border-[#1A2C4B] rounded-2xl p-5 sm:p-6 relative overflow-hidden shadow-sm';
+        verdictBadge.className = 'px-2.5 py-0.5 rounded-md text-[11px] font-semibold uppercase tracking-wider bg-rose-950/60 text-rose-300 border border-rose-800/40';
+        verdictBadge.innerText = 'HIGH RISK: COUNTERFEIT';
+        verdictTitle.innerText = 'Critical Warning: Counterfeit Signals Detected';
+      }
+
+      verdictSummary.innerText = data.explanation || data.summary_explanation;
+      setTimeout(() => {
+        scoreCircle.setAttribute('stroke-dasharray', `${score}, 100`);
+      }, 50);
+
+      // Render NAFDAC Green Book Card
+      renderNafdacCard(data.nafdac_record);
+
+      // Setup Comparison Images
+      document.getElementById('curtain-user-img').src = userImgUrl;
+      document.getElementById('curtain-ref-img').src = data.reference_comparison.authentic_reference_url;
+      document.getElementById('split-user-img').src = userImgUrl;
+      document.getElementById('split-ref-img').src = data.reference_comparison.authentic_reference_url;
+
+      // Render Hotspots & Defects
+      renderHotspots(data.hotspots || []);
+      renderDefects(data.discrepancies || []);
+
+      // Render Score Attribution Factors
+      renderScoreFactors(data.score_breakdown || []);
+
+      // Render Authenticity Indicators
+      renderAuthenticityIndicators(data.authenticity_indicators || [], data.risk_level || 'LOW_RISK');
+
+      // Render Recommendations Checklist
+      renderTips(data.things_to_look_out_for || []);
+
+      // Default to Visual Comparison tab
+      switchResultTab('visual');
+
+      lucide.createIcons();
+    }
+
+    function renderAuthenticityIndicators(indicators, riskLevel) {
+      const list = document.getElementById('authenticity-indicators-list');
+      const riskBadge = document.getElementById('risk-level-badge');
+
+      if (riskLevel === 'LOW_RISK') {
+        riskBadge.className = 'px-2.5 py-0.5 rounded text-[11px] font-semibold font-mono bg-blue-950/60 text-[#38BDF8] border border-blue-800/40';
+        riskBadge.innerText = 'RISK: LOW (PASS)';
+      } else if (riskLevel === 'MEDIUM_RISK') {
+        riskBadge.className = 'px-2.5 py-0.5 rounded text-[11px] font-semibold font-mono bg-amber-950/60 text-amber-300 border border-amber-800/40';
+        riskBadge.innerText = 'RISK: MEDIUM (CAUTION)';
+      } else {
+        riskBadge.className = 'px-2.5 py-0.5 rounded text-[11px] font-semibold font-mono bg-rose-950/60 text-rose-300 border border-rose-800/40';
+        riskBadge.innerText = 'RISK: HIGH (FAIL)';
+      }
+
+      if (!indicators || indicators.length === 0) {
+        list.innerHTML = `
+          <div class="p-3 rounded-xl bg-[#060B14] border border-[#1A2C4B] text-xs text-slate-400 italic">
+            No verified authenticity indicators could be confirmed on this sample.
+          </div>
+        `;
+        return;
+      }
+
+      list.innerHTML = indicators.map(ind => `
+        <div class="p-2.5 rounded-xl bg-[#060B14] border border-[#1A2C4B] flex items-center gap-2.5 text-xs">
+          <span class="w-1.5 h-1.5 rounded-full bg-[#38BDF8] shrink-0"></span>
+          <span class="text-slate-200 font-medium">${ind}</span>
+        </div>
+      `).join('');
+    }
+
+    function renderNafdacCard(record) {
+      const statusBadge = document.getElementById('nafdac-status-badge');
+      const grid = document.getElementById('nafdac-details-grid');
+      if (!record) return;
+
+      if (record.status === 'VALID_ACTIVE') {
+        statusBadge.className = 'px-2.5 py-0.5 rounded text-[11px] font-semibold font-mono bg-blue-950/60 text-[#38BDF8] border border-blue-800/40';
+        statusBadge.innerText = '✓ VALID ACTIVE REGISTRATION';
+      } else {
+        statusBadge.className = 'px-2.5 py-0.5 rounded text-[11px] font-semibold font-mono bg-rose-950/60 text-rose-300 border border-rose-800/40';
+        statusBadge.innerText = '✕ UNREGISTERED / FALSIFIED NUMBER';
+      }
+
+      grid.innerHTML = `
+        <div class="p-3 bg-[#060B14] rounded-xl border border-[#1A2C4B] space-y-0.5">
+          <span class="text-slate-500 text-[10px] uppercase font-semibold tracking-wider">Registered Brand</span>
+          <p class="font-semibold text-white text-xs">${record.registered_product || 'Not on Record'}</p>
+        </div>
+        <div class="p-3 bg-[#060B14] rounded-xl border border-[#1A2C4B] space-y-0.5">
+          <span class="text-slate-500 text-[10px] uppercase font-semibold tracking-wider">Manufacturer of Record</span>
+          <p class="font-semibold text-white text-xs">${record.manufacturer_of_record || 'Unknown / Unlicensed'}</p>
+        </div>
+        <div class="p-3 bg-[#060B14] rounded-xl border border-[#1A2C4B] space-y-0.5">
+          <span class="text-slate-500 text-[10px] uppercase font-semibold tracking-wider">Authorization Category</span>
+          <p class="font-semibold text-white text-xs">${record.category || 'N/A'}</p>
+        </div>
+        <div class="p-3 bg-[#060B14] rounded-xl border border-[#1A2C4B] space-y-0.5">
+          <span class="text-slate-500 text-[10px] uppercase font-semibold tracking-wider">Registry Finding</span>
+          <p class="text-slate-300 text-xs leading-relaxed">${record.notes || ''}</p>
+        </div>
+      `;
+    }
+
+    function renderScoreFactors(factors) {
+      const grid = document.getElementById('score-factors-grid');
+      grid.innerHTML = factors.map(f => {
+        const isPass = f.status === 'PASS';
+        const color = isPass ? 'text-sky-400' : 'text-rose-400';
+
+        return `
+          <div class="p-3 rounded-xl bg-[#060B14] border border-[#1A2C4B] space-y-1.5">
+            <div class="flex items-center justify-between text-xs">
+              <span class="font-semibold text-white">${f.category}</span>
+              <span class="font-mono text-xs font-semibold ${color}">${f.earned} / ${f.maximum} pts</span>
+            </div>
+            <p class="text-[11px] text-slate-400 leading-relaxed">${f.finding}</p>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderHotspots(hotspots) {
+      const container = document.getElementById('hotspot-pills-container');
+      container.innerHTML = hotspots.map(h => `
+        <button onclick="focusHotspot('${h.id}')" id="pill-${h.id}" 
+          class="px-3 py-1 rounded-lg text-xs font-medium bg-[#08101E] border border-[#1A2C4B] hover:border-[#2563EB] text-slate-200 transition-all flex items-center gap-1.5">
+          <span class="w-1.5 h-1.5 rounded-full bg-[#38BDF8]"></span>
+          <span>${h.title}</span>
+        </button>
+      `).join('');
+    }
+
+    function focusHotspot(hotspotId) {
+      const hotspots = currentAnalysisResult?.hotspots || [];
+      const target = hotspots.find(h => h.id === hotspotId);
+      if (!target) return;
+
+      currentActiveHotspot = target;
+
+      hotspots.forEach(h => {
+        const pill = document.getElementById(`pill-${h.id}`);
+        if (pill) {
+          if (h.id === hotspotId) {
+            pill.className = 'px-3 py-1 rounded-lg text-xs font-semibold bg-[#2563EB] text-white border border-[#2563EB] transition-all flex items-center gap-1.5 shadow-sm';
+          } else {
+            pill.className = 'px-3 py-1 rounded-lg text-xs font-medium bg-[#08101E] border border-[#1A2C4B] hover:border-[#2563EB] text-slate-200 transition-all flex items-center gap-1.5';
+          }
+        }
+      });
+
+      renderActiveHotspotOverlay(target);
+    }
+
+    function renderActiveHotspotOverlay(hotspot) {
+      const layer = document.getElementById('curtain-defects-layer');
+      layer.innerHTML = `
+        <div class="hotspot-box active" style="top:${hotspot.user_box[0]}%; left:${hotspot.user_box[1]}%; height:${hotspot.user_box[2]-hotspot.user_box[0]}%; width:${hotspot.user_box[3]-hotspot.user_box[1]}%;">
+          <div class="hotspot-label">${hotspot.title}</div>
+        </div>
+      `;
+    }
+
+    function renderDefects(discrepancies) {
+      const card = document.getElementById('defects-card');
+      const list = document.getElementById('defects-list');
+      const layer = document.getElementById('curtain-defects-layer');
+      const splitLayer = document.getElementById('split-defects-layer');
+
+      layer.innerHTML = '';
+      splitLayer.innerHTML = '';
+
+      if (!discrepancies || discrepancies.length === 0) {
+        card.classList.add('hidden');
+        return;
+      }
+
+      card.classList.remove('hidden');
+
+      list.innerHTML = discrepancies.map(d => `
+        <div class="p-3 rounded-xl bg-[#08101E] border border-rose-900/40 flex items-start gap-3 text-xs">
+          <div class="w-5 h-5 rounded-full bg-rose-950/60 text-rose-400 flex items-center justify-center shrink-0 mt-0.5 border border-rose-800/40">
+            <i data-lucide="x-circle" class="w-3.5 h-3.5"></i>
+          </div>
+          <div>
+            <span class="font-semibold text-rose-200 block text-xs">${d.title}</span>
+            <p class="text-rose-300/80 text-[11px] leading-relaxed mt-0.5">${d.detail}</p>
+          </div>
+        </div>
+      `).join('');
+
+      discrepancies.forEach(d => {
+        if (d.bounding_box) {
+          const [ymin, xmin, ymax, xmax] = d.bounding_box;
+          const box = document.createElement('div');
+          box.className = 'hotspot-box';
+          box.style.top = `${ymin}%`;
+          box.style.left = `${xmin}%`;
+          box.style.height = `${ymax - ymin}%`;
+          box.style.width = `${xmax - xmin}%`;
+
+          const lbl = document.createElement('div');
+          lbl.className = 'hotspot-label';
+          lbl.innerText = d.title.split(' ')[0];
+          box.appendChild(lbl);
+
+          layer.appendChild(box);
+          splitLayer.appendChild(box.cloneNode(true));
+        }
+      });
+    }
+
+    function renderTips(tips) {
+      const container = document.getElementById('tips-container');
+      container.innerHTML = tips.map(tip => `
+        <div class="p-3 bg-[#060B14] rounded-xl border border-[#1A2C4B] space-y-1">
+          <div class="flex items-center justify-between text-xs">
+            <span class="font-semibold text-white">${tip.title}</span>
+            <span class="text-[9px] font-bold px-2 py-0.5 rounded ${tip.importance === 'CRITICAL' ? 'bg-rose-950/60 text-rose-300 border border-rose-800/40' : 'bg-[#0B1528] text-slate-300 border border-[#1A2C4B]'}">${tip.importance}</span>
+          </div>
+          <p class="text-[11px] text-slate-400 leading-relaxed">${tip.detail}</p>
+        </div>
+      `).join('');
+    }
+
+    // Curtain Slider Interaction
+    function setSliderPosition(xRatio) {
+      const clamped = Math.max(0, Math.min(1, xRatio));
+      const pct = clamped * 100;
+      comparisonSlider.style.left = `${pct}%`;
+      curtainClipWrapper.style.clipPath = `polygon(0 0, ${pct}% 0, ${pct}% 100%, 0 100%)`;
+    }
+
+    curtainSliderView.addEventListener('mousedown', () => isDraggingSlider = true);
+    window.addEventListener('mouseup', () => isDraggingSlider = false);
+    window.addEventListener('mousemove', e => {
+      if (!isDraggingSlider) return;
+      const rect = curtainSliderView.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      setSliderPosition(x / rect.width);
+    });
+
+    curtainSliderView.addEventListener('touchmove', e => {
+      const rect = curtainSliderView.getBoundingClientRect();
+      const touch = e.touches[0];
+      const x = touch.clientX - rect.left;
+      setSliderPosition(x / rect.width);
+    });
+
+    // View toggles
+    viewCurtainBtn.addEventListener('click', () => {
+      viewCurtainBtn.className = 'px-2.5 py-1 rounded-md font-semibold bg-[#2563EB] text-white transition';
+      viewSplitBtn.className = 'px-2.5 py-1 rounded-md font-medium text-slate-400 hover:text-white transition';
+      curtainSliderView.classList.remove('hidden');
+      dualSplitView.classList.add('hidden');
+    });
+
+    viewSplitBtn.addEventListener('click', () => {
+      viewSplitBtn.className = 'px-2.5 py-1 rounded-md font-semibold bg-[#2563EB] text-white transition';
+      viewCurtainBtn.className = 'px-2.5 py-1 rounded-md font-medium text-slate-400 hover:text-white transition';
+      curtainSliderView.classList.add('hidden');
+      dualSplitView.classList.remove('hidden');
+    });
+
+    toggleDefectsBtn.addEventListener('click', () => {
+      showDefects = !showDefects;
+      const l1 = document.getElementById('curtain-defects-layer');
+      const l2 = document.getElementById('split-defects-layer');
+      l1.style.display = showDefects ? 'block' : 'none';
+      l2.style.display = showDefects ? 'block' : 'none';
+      toggleDefectsBtn.className = showDefects 
+        ? 'px-2.5 py-1 text-xs rounded-lg bg-rose-950/40 text-rose-300 border border-rose-900/60 hover:bg-rose-900/30 transition flex items-center gap-1.5 font-medium'
+        : 'px-2.5 py-1 text-xs rounded-lg bg-[#08101E] text-slate-400 border border-[#1A2C4B] transition flex items-center gap-1.5 font-medium';
+    });
+
+    // Certificate Modal
+    const certModal = document.getElementById('cert-modal');
+    function openCertificateModal() {
+      if (!currentAnalysisResult) return;
+      document.getElementById('modal-cert-id').innerText = currentAnalysisResult.certificate_hash || 'NG-VERIFY-001';
+      document.getElementById('modal-cert-product').innerText = currentAnalysisResult.product.product_name;
+      document.getElementById('modal-cert-score').innerText = `${currentAnalysisResult.trust_score} / 100 PTS`;
+      document.getElementById('modal-cert-verdict').innerText = currentAnalysisResult.verdict_label;
+      document.getElementById('modal-cert-nafdac').innerText = currentAnalysisResult.nafdac_record?.status || 'VALID_ACTIVE';
+      document.getElementById('modal-cert-engine').innerText = currentAnalysisResult.engine_details || 'Google Gemini Vision';
+      certModal.classList.remove('hidden');
+    }
+
+    document.getElementById('export-cert-btn').addEventListener('click', openCertificateModal);
+    const quickExportBtn = document.getElementById('quick-export-cert-btn');
+    if (quickExportBtn) quickExportBtn.addEventListener('click', openCertificateModal);
+
+    document.getElementById('close-cert-btn').addEventListener('click', () => {
+      certModal.classList.add('hidden');
+    });
+
+    // Init
+    updateTelemetry();
+  </script>
+</body>
+</html>

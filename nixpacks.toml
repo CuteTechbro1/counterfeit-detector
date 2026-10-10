@@ -1,0 +1,16 @@
+# Nixpacks configuration for Railway alternative build mode
+[phases.setup]
+nixPkgs = ["python311", "curl"]
+
+[phases.install]
+cmds = [
+  "pip install --upgrade pip",
+  "pip install -r services/api/requirements.txt"
+]
+
+[start]
+cmd = "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --workers 2"
+
+[variables]
+PYTHONPATH = "services/api:packages"
+PYTHONUNBUFFERED = "1"

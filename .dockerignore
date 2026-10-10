@@ -1,0 +1,27 @@
+# Git
+.git
+.gitignore
+
+# Python virtual environments & bytecode
+.venv/
+venv/
+ENV/
+__pycache__/
+*.py[cod]
+*$py.class
+*.pytest_cache/
+.coverage
+htmlcov/
+
+# Local configuration files
+.env
+.env.local
+*.log
+
+# IDE files
+.vscode/
+.idea/
+
+# Scratch & temporary artifacts
+scratch/
+tmp/
