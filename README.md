@@ -1,4 +1,4 @@
-# Counterfeit Detector 🇳🇬 (Competition Web Prototype)
+# Counterfeit Detector 🇳🇬 (Web Prototype)
 
 An AI and Computer Vision-powered web verification platform designed to help Nigerian consumers, community pharmacies, and retailers detect counterfeit medicines, beverages, and FMCG consumer products.
 
